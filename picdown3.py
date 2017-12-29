@@ -68,7 +68,7 @@ class mdpr(object):
 
     def mdprOriginUrl(self, photourls):
         photo_urls = photourls
-        thread = len(photo_urls) / 4
+        thread = len(photo_urls) // 4
         if 0 < thread <= 9:
             thread = 4
         if thread >= 10:
@@ -111,7 +111,7 @@ class oricon(object):
             return photo_urls
         photo_body_rule = r'<a.*?href="(.*?)".*?>.*?</a>'
         photo_url = re.findall(photo_body_rule, str(photo_body), re.S | re.M)
-        thread = len(photo_url) / 4
+        thread = len(photo_url) // 4
         if 0 < thread <= 9:
             thread = 4
         if thread >= 10:
@@ -207,16 +207,17 @@ class pic46(object):
             return None
 
     def nogiBlog(self, url):
-        nogi_imgs = []
         response = requests.get(url, timeout=30, headers=self.headers)
         nogi_blog_index = response.text
         nogi_box_rule = r'<div class="entrybody">(.*?)<div class="entrybottom">'
         nogi_blog_box = re.findall(nogi_box_rule, nogi_blog_index, re.S | re.M)
         nogi_img_rule = r'<a.*?href="(.*?)".*?>'
         nogi_imgs_dcimg = re.findall(nogi_img_rule, nogi_blog_box[0])
-        media_path = os.path.join(os.getcwd(), "media")
+        folder = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        media_path = os.path.join(os.getcwd(), folder)
         if not os.path.exists(media_path):
             os.mkdir(media_path)
+        print("[3]Downloading...")
         for dcimg in nogi_imgs_dcimg:
             r = requests.Session()
             try:
@@ -227,20 +228,16 @@ class pic46(object):
                 nogi_img_url = ''.join(nogi_img_url)
                 nogi_img_data = r.get(
                     nogi_img_url, timeout=30, headers=self.headers)
+                nogi_img_url = bytes(nogi_img_url, encoding="utf-8")
                 save_name = hashlib.md5(nogi_img_url).hexdigest()[
                     8:-8] + ".jpg"
                 save_path = os.path.join(media_path, save_name)
-                save_uri = "/media/" + save_name
-                nogi_imgs.append(save_uri)
                 with open(save_path, "wb") as code:
                     for chunk in nogi_img_data.iter_content(chunk_size=1024):
                         code.write(chunk)
             except BaseException:
                 pass
-        if nogi_imgs:
-            return nogi_imgs
-        else:
-            return None
+        return "nogi"
 
 
 class natalie(object):
@@ -273,7 +270,7 @@ class natalie(object):
         return natalie_img
 
     def natalieImgUrl(self, imglist):
-        thread = len(imglist) / 4
+        thread = len(imglist) // 4
         if 0 < thread <= 9:
             thread = 4
         if thread >= 10:
@@ -393,7 +390,7 @@ class picdown(object):
         urls = urls
         nums = range(1, len(urls) + 1)
         t = [folder for i in range(0, len(urls))]
-        thread = thread / 4
+        thread = thread // 4
         if 0 < thread <= 9:
             thread = 4
         if thread >= 10:
@@ -412,16 +409,17 @@ class picdown(object):
 
 def main():
     p = picdown()
-    url = raw_input("Enter a link or file:")
+    url = input("Enter a link or file:")
     folder = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-    print "[1]Checking links..."
+    print("[1]Checking links...")
     urldict = p.urlCheck(url)
-    print "[2]Getting image links..."
+    print("[2]Getting image links...")
     urls = p.photoUrlGet(urldict)
-    print "[3]Downloading..."
-    thread = len(urls)
-    sec = p.photoDownload(urls, folder, thread)
-    print "Lasted {} seconds".format(sec)
+    if urls != "nogi":
+        print("[3]Downloading...")
+        thread = len(urls)
+        sec = p.photoDownload(urls, folder, thread)
+        print("Lasted {} seconds".format(sec))
 
 
 if __name__ == '__main__':
