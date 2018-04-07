@@ -224,6 +224,7 @@ class picdown(object):
             pic_rule = r'<figure class="main-photo f9em">.*?<img src="(.*?)".*?>.*?</figure>'
             piclist = self.picRules(url, site, fil_rule)
             pics = self.picUrlsGet(piclist, pic_rule)
+            pics = [p.split("?")[0] for p in pics]
         elif "oricon" in site:
             url = self.picExtra.oriconImgCenter(url, self.host[site])
             fil_rule = r'<li class="item">.*?<a href="(.*?)" class="inner">.*?<p class="item-image">'
