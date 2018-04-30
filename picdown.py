@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 # @author AoBeom
 # @create date 2017-12-22 09:48:23
-# @modify date 2018-02-24 20:42:35
+# @modify date 2018-04-30 22:01:58
 # @desc [原图链接获取]
-
-import datetime
 import hashlib
 import json
 import os
@@ -12,6 +10,7 @@ import re
 import sys
 import time
 from multiprocessing.dummy import Pool
+import multiprocessing
 
 import requests
 
@@ -326,16 +325,43 @@ class picdown(object):
             thread = 4
         if thread > 9:
             thread = 8
-        start = time.time()
         os.mkdir(folder)
         pool = Pool(thread)
         pool.map(self.__download, zip(nums, urls, t))
         pool.close()
         pool.join()
-        end = time.time()
-        s = int(end - start)
-        formats = str(datetime.timedelta(seconds=s))
-        return formats
+
+
+def process_num(total, current):
+    num = current / float(total) * 100
+    return num
+
+
+def progressbar(total, path):
+    while True:
+        mainpath = os.path.join(os.getcwd(), path)
+        current = len(os.listdir(mainpath))
+        if current == total:
+            prognum = round(process_num(total, current), 2)
+            progsep = int(prognum / 2) * "#"
+            progbar = '[{}] {}% \r'.format(progsep, str(prognum))
+            sys.stdout.write(progbar)
+            sys.stdout.flush()
+            break
+        prognum = round(process_num(total, current), 2)
+        progsep = int(prognum / 2) * "#"
+        progbar = '[{}] {}% \r'.format(progsep, str(prognum))
+        sys.stdout.write(progbar)
+        sys.stdout.flush()
+        time.sleep(0.3)
+    print("")
+
+
+def pic_proc(proc, urls, folder):
+    if urls != "nogi":
+        print("[3]Downloading...")
+        thread = len(urls)
+        proc.picDownload(urls, folder, thread)
 
 
 def main():
@@ -349,11 +375,15 @@ def main():
     urldict = p.urlCheck(url)
     print("[2]Getting image links...")
     urls = p.picRouter(urldict)
-    if urls != "nogi":
-        print("[3]Downloading...")
-        thread = len(urls)
-        sec = p.picDownload(urls, folder, thread)
-        print("Lasted {} seconds".format(sec))
+
+    total = len(urls)
+    p1 = multiprocessing.Process(
+        target=pic_proc, args=(p, urls, folder), name="create")
+    p2 = multiprocessing.Process(
+        target=progressbar, args=(total, folder), name="count")
+
+    p1.start()
+    p2.start()
 
 
 if __name__ == '__main__':
