@@ -19,53 +19,42 @@ class urltest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_mdpr(self):
-        url = self.target["mdpr"]
+    def common(self, url):
         urldict = self.p.urlCheck(url)
         urls = self.p.picRouter(urldict)
         self.assertNotEqual(None, urls)
+
+    def test_mdpr(self):
+        url = self.target["mdpr"]
+        self.common(url)
 
     def test_oricon(self):
         url = self.target["oricon"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
     def test_ameblo(self):
         url = self.target["ameblo"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
     def test_keya(self):
         url = self.target["keya"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
     def test_natalie(self):
         url = self.target["natalie"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
     def test_mantan(self):
         url = self.target["mantan"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
     def test_mthetvdpr(self):
         url = self.target["mthetvdpr"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
     def test_tpl(self):
         url = self.target["tpl"]
-        urldict = self.p.urlCheck(url)
-        urls = self.p.picRouter(urldict)
-        self.assertNotEqual(None, urls)
+        self.common(url)
 
 
 if __name__ == '__main__':
