@@ -1,11 +1,19 @@
 ## 简介
 
-快速获取[mdpr](https://mdpr.jp/) / [oricon](https://www.oricon.co.jp)的原图。
+提取新闻网站的原图
 
-## 使用
+支持的网站及示例地址
++ [mdpr](https://mdpr.jp/photo/detail/6356062)
++ [oricon](https://www.oricon.co.jp/news/2110695/)
++ [ameblo](https://ameblo.jp/sayaka-kanda/entry-12372153694.html)
++ [keyablog](http://www.keyakizaka46.com/s/k46o/diary/detail/12853?ima=0000&cd=member)
++ [natalie](https://natalie.mu/eiga/news/275350)
++ [mantan](https://mantan-web.jp/article/20180501dog00m200043000c.html)
++ [thetv](https://thetv.jp/news/detail/145669/)
++ [tpl](https://tokyopopline.com/archives/100688)
 
-输入地址自动识别并下载图片到当前目录。
+## 特性
 
-## 注意
-mdpr的图片页面url统一为[https://mdpr.jp/photo/detail/number]  
-oricon的图片页面url统一为[https://www.oricon.co.jp/photo/number/number]
++ 多线程
++ 进度显示（独立进程实现）
++ 易扩展
