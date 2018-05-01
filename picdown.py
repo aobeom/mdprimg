@@ -216,60 +216,63 @@ class picdown(object):
                     return result
 
     def picRouter(self, result):
-        site = result["type"]
-        url = result["datas"]
-        if "mdpr" in site:
-            url = self.picExtra.mdprImgCenter(
-                url, self.host[site], self.headers)
-            fil_rule = r'<figure class="square">.*?<a href="(.*?)".*?>.*?</a>.*?</figure>'
-            pic_rule = r'<figure class="main-photo f9em">.*?<img src="(.*?)".*?>.*?</figure>'
-            piclist = self.picRules(url, site, fil_rule)
-            pics = self.picUrlsGet(piclist, pic_rule)
-            pics = [p.split("?")[0] for p in pics]
-        elif "oricon" in site:
-            url = self.picExtra.oriconImgCenter(url, self.host[site])
-            fil_rule = r'<li class="item">.*?<a href="(.*?)" class="inner">.*?<p class="item-image">'
-            fil_rule2 = r'"(/news/[0-9]+/photo/[0-9]+/)"class='
-            pic_rule = r'<div class="centering-image">.*?<img.*?src="(.*?)".*?>.*?</div>'
-            piclist = self.picRules(url, site, fil_rule, fil_rule2)
-            pics = self.picUrlsGet(piclist, pic_rule)
-        elif "ameblo" in site:
-            a = ameblo()
-            pics = a.amebloImgUrl(url)
-        elif "nogizaka" in site:
-            n = nogizaka()
-            pics = n.nogiBlog(url)
-        elif "keyakizaka" in site:
-            fil_rule = r'<div class="box-article">(.*?)<div class="box-bottom">'
-            fil_rule_add = r'<.*?src="(.*?)".*?>'
-            piclist = self.picRules(url, site, fil_rule, addrule=fil_rule_add)
-            pics = piclist
-        elif "natalie" in site:
-            fil_rule = r'<ul class="NA_imageList clearfix">(.*?)<div class="NA_articleFooter clearfix">'
-            fil_rule_add = r'<a href="(.*?)" title=.*?>.*?</a>'
-            pic_rule = r'<figure>.*?<img src="(.*?)".*?>.*?<figcaption>'
-            piclist = self.picRules(url, site, fil_rule, addrule=fil_rule_add)
-            pics = self.picUrlsGet(piclist, pic_rule)
-        elif "mantan" in site:
-            url = self.picExtra.mantanImgCenter(url, self.host[site])
-            fil_rule = r'<li class="newsbody__thumb.*?>.*?<a href="(.*?page=[0-9]+)">.*?</li>'
-            pic_rule = r'<img src="(.*?_size6.jpg)" srcset=".*?" alt=".*?" />'
-            piclist = self.picRules(url, site, fil_rule)
-            pics = self.picUrlsGet(piclist, pic_rule)
-        elif "thetv" in site:
-            fil_rule = r'<li class="list_thumbnail__item"><a href="(.*?)" data-echo-background=".*?" alt=".*?" onContextmenu="return false"></a></li>'
-            pic_rule = r'<figure>.*?<img src="(.*?)".*?>.*?</figure>'
-            piclist = self.picRules(url, site, fil_rule)
-            pics = self.picUrlsGet(piclist, pic_rule)
-        elif "instagram" in site:
-            i = instapic()
-            pics = i.instaPicUrl(url)
-        elif "tokyopopline" in site:
-            fil_rule = r'<div id="gallery-[0-9]+".*?>(.*?)</div>'
-            fil_rule_add = r'<a.*?href="(.*?)".*?>.*?</a>'
-            piclist = self.picRules(url, site, fil_rule, addrule=fil_rule_add)
-            pics = piclist
-        return pics
+        if result:
+            site = result["type"]
+            url = result["datas"]
+            if "mdpr" in site:
+                url = self.picExtra.mdprImgCenter(
+                    url, self.host[site], self.headers)
+                fil_rule = r'<figure class="square">.*?<a href="(.*?)".*?>.*?</a>.*?</figure>'
+                pic_rule = r'<figure class="main-photo f9em">.*?<img src="(.*?)".*?>.*?</figure>'
+                piclist = self.picRules(url, site, fil_rule)
+                pics = self.picUrlsGet(piclist, pic_rule)
+                pics = [p.split("?")[0] for p in pics]
+            elif "oricon" in site:
+                url = self.picExtra.oriconImgCenter(url, self.host[site])
+                fil_rule = r'<li class="item">.*?<a href="(.*?)" class="inner">.*?<p class="item-image">'
+                fil_rule2 = r'"(/news/[0-9]+/photo/[0-9]+/)"class='
+                pic_rule = r'<div class="centering-image">.*?<img.*?src="(.*?)".*?>.*?</div>'
+                piclist = self.picRules(url, site, fil_rule, fil_rule2)
+                pics = self.picUrlsGet(piclist, pic_rule)
+            elif "ameblo" in site:
+                a = ameblo()
+                pics = a.amebloImgUrl(url)
+            elif "nogizaka" in site:
+                n = nogizaka()
+                pics = n.nogiBlog(url)
+            elif "keyakizaka" in site:
+                fil_rule = r'<div class="box-article">(.*?)<div class="box-bottom">'
+                fil_rule_add = r'<.*?src="(.*?)".*?>'
+                piclist = self.picRules(url, site, fil_rule, addrule=fil_rule_add)
+                pics = piclist
+            elif "natalie" in site:
+                fil_rule = r'<ul class="NA_imageList clearfix">(.*?)<div class="NA_articleFooter clearfix">'
+                fil_rule_add = r'<a href="(.*?)" title=.*?>.*?</a>'
+                pic_rule = r'<figure>.*?<img src="(.*?)".*?>.*?<figcaption>'
+                piclist = self.picRules(url, site, fil_rule, addrule=fil_rule_add)
+                pics = self.picUrlsGet(piclist, pic_rule)
+            elif "mantan" in site:
+                url = self.picExtra.mantanImgCenter(url, self.host[site])
+                fil_rule = r'<li class="newsbody__thumb.*?>.*?<a href="(.*?page=[0-9]+)">.*?</li>'
+                pic_rule = r'<img src="(.*?_size6.jpg)" srcset=".*?" alt=".*?" />'
+                piclist = self.picRules(url, site, fil_rule)
+                pics = self.picUrlsGet(piclist, pic_rule)
+            elif "thetv" in site:
+                fil_rule = r'<li class="list_thumbnail__item"><a href="(.*?)" data-echo-background=".*?" alt=".*?" onContextmenu="return false"></a></li>'
+                pic_rule = r'<figure>.*?<img src="(.*?)".*?>.*?</figure>'
+                piclist = self.picRules(url, site, fil_rule)
+                pics = self.picUrlsGet(piclist, pic_rule)
+            elif "instagram" in site:
+                i = instapic()
+                pics = i.instaPicUrl(url)
+            elif "tokyopopline" in site:
+                fil_rule = r"<div id=[\'\"]gallery-[0-9]+[\'\"].*?>(.*?)</div>"
+                fil_rule_add = r'<img.*?src="(.*?)".*?>'
+                piclist = self.picRules(url, site, fil_rule, addrule=fil_rule_add)
+                pics = [p.split("-")[0] + ".jpg" for p in piclist]
+            return pics
+        else:
+            return None
 
     def picRules(self, url, site, rule1, rule2=None, addrule=None):
         response = requests.get(url, headers=self.headers, timeout=46)
@@ -325,7 +328,6 @@ class picdown(object):
             thread = 4
         if thread > 9:
             thread = 8
-        os.mkdir(folder)
         pool = Pool(thread)
         pool.map(self.__download, zip(nums, urls, t))
         pool.close()
@@ -342,7 +344,7 @@ def progressbar(total, path):
         mainpath = os.path.join(os.getcwd(), path)
         current = len(os.listdir(mainpath))
         if current == total:
-            prognum = round(process_num(total, current), 2)
+            prognum = 100
             progsep = int(prognum / 2) * "#"
             progbar = '[{}] {}% \r'.format(progsep, str(prognum))
             sys.stdout.write(progbar)
@@ -371,6 +373,7 @@ def main():
     else:
         url = raw_input("Url: ")
     folder = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+    os.mkdir(folder)
     print("[1]Checking links...")
     urldict = p.urlCheck(url)
     print("[2]Getting image links...")
