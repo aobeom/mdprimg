@@ -15,6 +15,11 @@ from multiprocessing.dummy import Pool
 import requests
 from lxml import etree
 
+try:
+    import queue
+except ImportError:
+    import Queue as queue
+
 if sys.version > '3':
     py3 = True
 else:
@@ -389,10 +394,9 @@ class picdown(object):
             thread = 4
         if thread > 9:
             thread = 8
-        pool = Pool(thread)
-        pool.map(self.__download, zip(nums, urls, t))
-        pool.close()
-        pool.join()
+        t = threadProcBar(self.__download, list(zip(nums, urls, t)), thread)
+        t.worker()
+        t.process()
 
 
 def process_num(total, current):
@@ -400,25 +404,82 @@ def process_num(total, current):
     return num
 
 
-# 进度条进程 统计目录的文件数
-def progressbar(total, path):
-    while True:
-        mainpath = os.path.join(os.getcwd(), path)
-        current = len(os.listdir(mainpath))
-        if current == total:
-            prognum = 100
-            progsep = int(prognum / 2) * "#"
-            progbar = '[{}] {}% \r'.format(progsep, str(prognum))
-            sys.stdout.write(progbar)
-            sys.stdout.flush()
-            break
-        prognum = round(process_num(total, current), 2)
-        progsep = int(prognum / 2) * "#"
-        progbar = '[{}] {}% \r'.format(progsep, str(prognum))
-        sys.stdout.write(progbar)
+class threadProcBar(object):
+    def __init__(self, func, tasks, pool=multiprocessing.cpu_count()):
+        self.func = func
+        self.tasks = tasks
+
+        self.bar_i = 0
+        self.bar_len = 50
+        self.bar_max = len(tasks)
+
+        self.p = Pool(pool)
+        self.q = queue.Queue()
+
+    def __dosth(self, percent, task):
+        if percent == self.bar_max:
+            return self.done
+        else:
+            self.func(task)
+            return percent
+
+    def worker(self):
+        process_bar = '[' + '>' * 0 + '-' * 0 + ']' + '%.2f' % 0 + '%' + '\r'
+        sys.stdout.write(process_bar)
         sys.stdout.flush()
-        time.sleep(0.3)
-    print("")
+        pool = self.p
+        for i, task in enumerate(self.tasks):
+            try:
+                percent = pool.apply_async(self.__dosth, args=(i, task))
+                self.q.put(percent)
+            except BaseException as e:
+                break
+
+    def process(self):
+        pool = self.p
+        while 1:
+            result = self.q.get().get()
+            if result == self.bar_max:
+                self.bar_i = self.bar_max
+            else:
+                self.bar_i += 1
+            num_arrow = int(self.bar_i * self.bar_len / self.bar_max)
+            num_line = self.bar_len - num_arrow
+            percent = self.bar_i * 100.0 / self.bar_max
+            process_bar = '[' + '>' * num_arrow + '-' * \
+                num_line + ']' + '%.2f' % percent + '%' + '\r'
+            sys.stdout.write(process_bar)
+            sys.stdout.flush()
+            if result == self.bar_max-1:
+                pool.terminate()
+                break
+        pool.join()
+        self.__close()
+
+    def __close(self):
+        print('')
+
+
+def timer(func):
+    def warpper(*args, **kwargs):
+        start = time.time()
+        func()
+        t_diff = time.time() - start
+        if t_diff < 60:
+            second = round(t_diff, 2)
+            minute = 0
+            hour = 0
+        elif 60 <= t_diff < 3600:
+            hour = 0
+            minute = int(t_diff // 60)
+            second = round(t_diff - minute * 60, 2)
+        else:
+            hour = int(t_diff//3600)
+            minute = int((t_diff - (hour * 3600))//60)
+            second = round(t_diff - hour * 3600 - minute * 60, 2)
+        latest = "Cost time: {}:{}:{}".format(hour, minute, second)
+        print(latest)
+    return warpper
 
 
 def pic_proc(proc, urls, folder, site):
@@ -429,6 +490,7 @@ def pic_proc(proc, urls, folder, site):
         proc.picDownload(urls, folder, thread)
 
 
+@timer
 def main():
     p = picdown()
     if py3:
@@ -441,15 +503,8 @@ def main():
     print("[2]Getting image links...")
     urls = p.picRouter(urldict)
 
-    total = len(urls)
-    p1 = multiprocessing.Process(
-        target=pic_proc, args=(p, urls, folder, urldict["type"]), name="create")
-    p2 = multiprocessing.Process(
-        target=progressbar, args=(total, folder), name="count")
-
-    p1.start()
-    if "nogizaka" not in urldict["type"]:
-        p2.start()
+    pic_proc(p, urls, folder, urldict["type"])
+    sys.exit("Press Enter to exit.")
 
 
 if __name__ == '__main__':
