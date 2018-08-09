@@ -309,7 +309,7 @@ class picdown(object):
                 i = instapic()
                 pics = i.instaPicUrl(url)
             elif "tokyopopline" in site:
-                img_i_rule = '//dl[@class="gallery-item"]/dt/a'
+                img_i_rule = '//figure[@class="gallery-item"]/div/a'
                 rule = {
                     "mode": "direct",
                     "i_rule": img_i_rule
