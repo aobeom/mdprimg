@@ -1,8 +1,11 @@
+# picdown
+
 ## 简介
 
 提取新闻网站的原图
 
 支持的网站及示例地址
+
 + [mdpr](https://mdpr.jp/photo/detail/6356062)
 + [oricon](https://www.oricon.co.jp/news/2110695/)
 + [ameblo](https://ameblo.jp/sayaka-kanda/entry-12372153694.html)
@@ -14,6 +17,7 @@
 
 ## 特性
 
-+ 多线程
-+ 进度显示（独立进程实现）
-+ 易扩展
++ 多线程下载
++ 简易进度条
++ lxml匹配标签
++ CLI交互输入
