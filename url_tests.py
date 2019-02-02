@@ -12,7 +12,8 @@ class urltest(unittest.TestCase):
             "natalie": "https://natalie.mu/eiga/news/275350",
             "mantan": "https://mantan-web.jp/article/20180501dog00m200043000c.html",
             "mthetvdpr": "https://thetv.jp/news/detail/145669/",
-            "tpl": "https://tokyopopline.com/archives/100688"
+            "tpl": "https://tokyopopline.com/archives/100688",
+            "hustlepress": "https://hustlepress.co.jp/shiraishi_20190105_interview/",
         }
         self.p = picdown()
 
@@ -54,6 +55,10 @@ class urltest(unittest.TestCase):
 
     def test_tpl(self):
         url = self.target["tpl"]
+        self.common(url)
+
+    def test_hustlepress(self):
+        url = self.target["hustlepress"]
         self.common(url)
 
 

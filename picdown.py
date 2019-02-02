@@ -237,7 +237,7 @@ class picdown(object):
         if http_code == 200:
             # 正则匹配域名和目录
             host_rule = re.compile(
-                r'https?://(.*mdpr\.jp/.*|.*oricon\.co\.jp|.*ameblo\.jp/.*/entry-.*|.*46.com|.*natalie\.mu|.*mantan-web\.jp|.*thetv.jp|.*tokyopopline\.com|.*instagram.com/p/.*)')
+                r'https?://(.*mdpr\.jp/.*|.*oricon\.co\.jp|.*ameblo\.jp/.*/entry-.*|.*46.com|.*natalie\.mu|.*mantan-web\.jp|.*thetv.jp|.*tokyopopline\.com|.*instagram.com/p/.*|.*hustlepress\.co\.jp)')
             if host_rule.match(url):
                 result["data"] = url
                 result["type"] = site
@@ -322,6 +322,13 @@ class picdown(object):
                     "i_rule": img_i_rule
                 }
                 pics = self.picRules(url, **rule)
+            elif "hustlepress" in site:
+                img_i_rule = '//div[@class="post_content entry-content"]/div/a'
+                rule = {
+                    "mode": "direct",
+                    "i_rule": img_i_rule
+                }
+                pics = self.picRules(url, **rule)
             return pics
         else:
             return None
@@ -399,11 +406,6 @@ class picdown(object):
         t = threadProcBar(self.__download, list(zip(nums, urls, t)), thread)
         t.worker()
         t.process()
-
-
-def process_num(total, current):
-    num = current / float(total) * 100
-    return num
 
 
 class threadProcBar(object):
