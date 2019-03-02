@@ -20,10 +20,10 @@ try:
 except ImportError:
     import Queue as queue
 
-if sys.version > '3':
-    py3 = True
-else:
-    py3 = False
+try:
+    input = raw_input
+except NameError:
+    pass
 
 
 # url处理的额外规则
@@ -175,11 +175,13 @@ class nogizaka(object):
                     nogi_img_url = "http://dcimg.awalker.jp/img/expired.gif"
             else:
                 nogi_img_url = dcimg
+            try:
+                nogi_img_url = bytes(nogi_img_url, encoding="utf-8")
+            except TypeError:
+                nogi_img_url = nogi_img_url
             # 单独下载模块
             nogi_img_data = r.get(
                 nogi_img_url, timeout=30, headers=self.headers)
-            if py3:
-                nogi_img_url = bytes(nogi_img_url, encoding="utf-8")
             hash_name = hashlib.md5(nogi_img_url).hexdigest()[8:-8]
             save_name = hash_name + ".jpg"
             save_path = os.path.join(media_path, save_name)
@@ -329,6 +331,7 @@ class picdown(object):
                     "i_rule": img_i_rule
                 }
                 pics = self.picRules(url, **rule)
+            pics = [p for p in pics if p]
             return pics
         else:
             return None
@@ -497,10 +500,7 @@ def pic_proc(proc, urls, folder, site):
 @timer
 def main():
     p = picdown()
-    if py3:
-        url = input("Url: ")
-    else:
-        url = raw_input("Url: ")
+    url = input("Url: ")
     folder = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
     print("[1]Checking links...")
     urldict = p.urlCheck(url)
