@@ -239,7 +239,7 @@ class picdown(object):
         if http_code == 200:
             # 正则匹配域名和目录
             host_rule = re.compile(
-                r'https?://(.*mdpr\.jp/.*|.*oricon\.co\.jp|.*ameblo\.jp/.*/entry-.*|.*46.com|.*natalie\.mu|.*mantan-web\.jp|.*thetv.jp|.*tokyopopline\.com|.*instagram.com/p/.*|.*hustlepress\.co\.jp)')
+                r'https?://(.*mdpr\.jp/.*|.*oricon\.co\.jp|.*ameblo\.jp/.*/entry-.*|.*46.com|.*natalie\.mu|.*mantan-web\.jp|.*thetv.jp|.*tokyopopline\.com|.*instagram.com/p/.*|.*hustlepress\.co\.jp|lineblog\.me)')
             if host_rule.match(url):
                 result["data"] = url
                 result["type"] = site
@@ -331,6 +331,14 @@ class picdown(object):
                     "i_rule": img_i_rule
                 }
                 pics = self.picRules(url, **rule)
+            elif "lineblog" in site:
+                img_a_rule = '//div[@class="article-body"]/div/div/a'
+                img_a_rule2 = '//div[@class="article-body"]/div/div/figure/div/a'
+                rule = {
+                    "mode": "direct",
+                    "i_rule": [img_a_rule, img_a_rule2]
+                }
+                pics = self.picRules(url, **rule)
             pics = [p for p in pics if p]
             if pics:
                 return pics
@@ -373,7 +381,12 @@ class picdown(object):
         # 图片地址在同一个页面
         elif mode == "direct":
             img_i_rule = rules["i_rule"]
-            img_src = html.xpath(img_i_rule)
+            if isinstance(img_i_rule, list):
+                img_src = []
+                for i_rule in img_i_rule:
+                    img_src = img_src + html.xpath(i_rule)
+            else:
+                img_src = html.xpath(img_i_rule)
             if img_src:
                 for i in img_src:
                     if i.get("src"):
