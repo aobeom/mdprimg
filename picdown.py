@@ -210,7 +210,11 @@ class picdown(object):
             "natalie.mu": "https://natalie.mu",
             "mantan-web.jp": "https://mantan-web.jp",
             "thetv.jp": "https://thetv.jp",
-            "tokyopopline.com": "https://tokyopopline.com"
+            "tokyopopline.com": "https://tokyopopline.com",
+            "instagram.com": "https://www.instagram.com",
+            "hustlepress.co.jp": "https://hustlepress.co.jp",
+            "lineblog.me": "https://www.lineblog.me/",
+            "ameblo": "https://ameblo.jp/"
         }
         self.picExtra = picExtra()
 
@@ -332,13 +336,16 @@ class picdown(object):
                 }
                 pics = self.picRules(url, **rule)
             elif "lineblog" in site:
-                img_a_rule = '//div[@class="article-body"]/div/div/a'
-                img_a_rule2 = '//div[@class="article-body"]/div/div/figure/div/a'
+                static_pic = 'https://scdn.line-apps.com/n/line_add_friends/btn/ja.png'
+                img_a_rule = '//div[@class="article-body-inner"]//*/img'
                 rule = {
                     "mode": "direct",
-                    "i_rule": [img_a_rule, img_a_rule2]
+                    "i_rule": img_a_rule
                 }
                 pics = self.picRules(url, **rule)
+                if static_pic in pics:
+                    pics.remove(static_pic)
+                pics = [i.replace("/small", "") for i in pics]
             pics = [p for p in pics if p]
             if pics:
                 return pics
@@ -405,6 +412,8 @@ class picdown(object):
         data = requests.get(
             urls, timeout=30, headers=self.headers, stream=True)
         ext = urls.split(".")[-1]
+        if ext not in ["jpg", "png", "webp", "gif", "bmp"]:
+            ext = "jpg"
         filename = str(times) + str(nums) + "." + ext
         savepath = os.path.join(times, filename)
         with open(savepath, "wb") as code:

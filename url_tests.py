@@ -14,6 +14,8 @@ class urltest(unittest.TestCase):
             "mthetvdpr": "https://thetv.jp/news/detail/145669/",
             "tpl": "https://tokyopopline.com/archives/100688",
             "hustlepress": "https://hustlepress.co.jp/shiraishi_20190105_interview/",
+            "lineblog": "https://lineblog.me/mamoru_miyano/archives/1744026.html",
+            "instagram": "https://www.instagram.com/p/Bwsi9mvBgBx/"
         }
         self.p = picdown()
 
@@ -59,6 +61,14 @@ class urltest(unittest.TestCase):
 
     def test_hustlepress(self):
         url = self.target["hustlepress"]
+        self.common(url)
+
+    def test_lineblog(self):
+        url = self.target["lineblog"]
+        self.common(url)
+
+    def test_instagram(self):
+        url = self.target["instagram"]
         self.common(url)
 
 
