@@ -197,6 +197,43 @@ class nogizaka(object):
             return None
 
 
+class mdprAPI(object):
+    def __init__(self):
+        self.headers = {
+            "model": "E653325 (7.1.1)",
+            "mdpr-api": "3.0.0",
+            "mdpr-app": "android:34",
+            "User-Agent": "okhttp/4.2.2"
+        }
+        self.api_url = "https://app2-mdpr.freetls.fastly.net"
+
+    def register(self):
+        register_url = self.api_url + "/api/users/register/normal"
+        data = {
+            "uuid": "fdfea920-b401-4fd2-924b-6926b047fd52",
+            "os": "android"
+        }
+        res = requests.post(register_url, headers=self.headers, json=data)
+        # resJson = json.loads(res.text)
+        # user_id = resJson["user_id"]
+        cookies = res.cookies.get_dict()
+        return cookies
+
+    def getURLs(self, articleID):
+        img_url = "https://app2-mdpr.freetls.fastly.net/api/images/dialog/article?index=0&article_id={}".format(articleID)
+        cookies = {
+            'MDPR_token': 'user%3Abo3ilgikeoevj01e2np0_HvxaVMvYpqjJWxcxFCiyxn2FC80XZzt3EsjFo9fX'
+        }
+        res = requests.get(img_url, headers=self.headers, cookies=cookies)
+        while res.status_code != 200:
+            cookies = self.register()
+            res = requests.get(img_url, headers=self.headers, cookies=cookies)
+        resJson = json.loads(res.text)
+        imgData = resJson["list"]
+        imglist = [_["url"] for _ in imgData]
+        return imglist
+
+
 # 通用图片下载
 class picdown(object):
     def __init__(self):
@@ -255,14 +292,17 @@ class picdown(object):
             site = result["type"]
             url = result["data"]
             if "mdpr" in site:
-                url = self.picExtra.mdprImgCenter(
-                    url, self.host[site], self.headers)
-                img_i_rule = '//figure[@class="square"]//img'
-                rule = {
-                    "mode": "direct",
-                    "i_rule": img_i_rule
-                }
-                pics = self.picRules(url, self.host[site], **rule)
+                # url = self.picExtra.mdprImgCenter(
+                #     url, self.host[site], self.headers)
+                # img_i_rule = '//figure[@class="square"]//img|//figure[@class="l-appImageList__item"]//img'
+                # rule = {
+                #     "mode": "direct",
+                #     "i_rule": img_i_rule
+                # }
+                # pics = self.picRules(url, self.host[site], **rule)
+                aid = url.split("/")[-1]
+                mdpr = mdprAPI()
+                pics = mdpr.getURLs(aid)
             elif "oricon" in site:
                 url = self.picExtra.oriconImgCenter(url, self.host[site])
                 img_a_rule = '//div[@class="photo_thumbs"]//a'
@@ -322,12 +362,13 @@ class picdown(object):
                 i = instapic()
                 pics = i.instaPicUrl(url)
             elif "tokyopopline" in site:
-                img_i_rule = '//dl[@class="gallery-item"]/dt/a'
+                img_i_rule = '//dl[@class="gallery-item"]/dt/a/img'
                 rule = {
                     "mode": "direct",
                     "i_rule": img_i_rule
                 }
                 pics = self.picRules(url, **rule)
+                pics = [_.split("-")[0] + ".jpg" for _ in pics]
             elif "hustlepress" in site:
                 img_i_rule = '//div[@class="post_content entry-content"]/div/a'
                 rule = {
