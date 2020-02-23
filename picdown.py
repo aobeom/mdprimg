@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @author AoBeom
 # @create date 2017-12-22 09:48:23
-# @modify date 2018-09-02 15:40:47
+# @modify date 2020-02-23 17:35:37
 # @desc [原图链接获取]
 import hashlib
 import json
@@ -78,7 +78,7 @@ class picExtra(object):
 class instapic(object):
     def __init__(self):
         self.headers = {
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36"
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
         }
 
     def instaPicUrl(self, url):
@@ -113,7 +113,7 @@ class instapic(object):
 class ameblo(object):
     def __init__(self):
         self.headers = {
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
         }
 
     def amebloImgUrl(self, url):
@@ -138,7 +138,7 @@ class ameblo(object):
 class nogizaka(object):
     def __init__(self):
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
         }
 
     def nogiBlog(self, url):
@@ -199,10 +199,14 @@ class nogizaka(object):
 
 class mdprAPI(object):
     def __init__(self):
-        self.headers = {
+        self.url_headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 7.1.1; E6533 Build/32.4.A.1.54; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.136 Mobile Safari/537.36",
+            "X-Requested-With": "jp.mdpr.mdprviewer"
+        }
+        self.api_headers = {
             "model": "E653325 (7.1.1)",
             "mdpr-api": "3.0.0",
-            "mdpr-app": "android:34",
+            "mdpr-app": "android:37",
             "User-Agent": "okhttp/4.2.2"
         }
         self.api_url = "https://app2-mdpr.freetls.fastly.net"
@@ -220,15 +224,16 @@ class mdprAPI(object):
         return cookies
 
     def getURLs(self, articleID):
-        img_url = "https://app2-mdpr.freetls.fastly.net/api/images/dialog/article?index=0&article_id={}".format(articleID)
-        cookies = {
-            'MDPR_token': 'user%3Abo3ilgikeoevj01e2np0_HvxaVMvYpqjJWxcxFCiyxn2FC80XZzt3EsjFo9fX'
-        }
-        res = requests.get(img_url, headers=self.headers, cookies=cookies)
-        while res.status_code != 200:
-            cookies = self.register()
-            res = requests.get(img_url, headers=self.headers, cookies=cookies)
-        resJson = json.loads(res.text)
+        api_pre_url = f"https://app2-mdpr.freetls.fastly.net/articles/detail/{articleID}"
+        res = requests.get(api_pre_url, headers=self.url_headers)
+        html = etree.HTML(res.text)
+        articleBody = html.xpath('//div[@class="p-articleBody"]/a')
+        apiData = articleBody[0].get("data-mdprapp-option")
+        apiJSON = json.loads(requests.utils.unquote(apiData))
+        img_url = self.api_url + apiJSON["url"]
+
+        resImg = requests.get(img_url, headers=self.api_headers)
+        resJson = json.loads(resImg.text)
         imgData = resJson["list"]
         imglist = [_["url"] for _ in imgData]
         return imglist
@@ -238,7 +243,7 @@ class mdprAPI(object):
 class picdown(object):
     def __init__(self):
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
         }
         self.host = {
             "mdpr.jp": "https://mdpr.jp",
